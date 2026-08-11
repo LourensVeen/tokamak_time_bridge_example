@@ -1,0 +1,18 @@
+ymmsl_version: v0.2
+
+programs:
+  diagnostics:
+    ports:
+      o_i: clock_out height_out
+      s: plasma_state_in
+
+    supported_settings:
+      sensor_position: float Position of the sensor relative to center of vessel
+      d_meas: float Amount of time a measurement takes to complete.
+      t_begin: float Time at which the diagnostic starts measuring.
+      dt: float Time between start of successive measurements.
+      t_end: float Time at which the diagnostic stops measuring.
+
+    description: A fake diagnostic that measures plasma height
+    executable: PREFIX/diagnostics
+

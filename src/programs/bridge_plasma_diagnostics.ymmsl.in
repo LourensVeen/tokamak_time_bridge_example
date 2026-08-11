@@ -1,0 +1,10 @@
+ymmsl_version: v0.2
+
+programs:
+  bridge_plasma_diagnostics:
+    ports:
+      o_i: plasma_state_out
+      s: plasma_state_in diag_clock_in
+    description: Bridges the plasma and diagnostics time scales
+    executable: PREFIX/bridge_plasma_diagnostics
+

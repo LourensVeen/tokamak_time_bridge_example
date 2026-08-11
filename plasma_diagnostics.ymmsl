@@ -1,0 +1,20 @@
+ymmsl_version: v0.2
+
+description: |
+  This runs the plasma model, diagnostics, and the time bridge between them
+
+imports:
+  - from ttb_example.reactor import implementation reactor
+  - from ttb_example.programs.plasma import implementation plasma
+  - from ttb_example.programs.bridge_plasma_diagnostics import implementation bridge_plasma_diagnostics
+  - from ttb_example.programs.diagnostics import implementation diagnostics
+
+custom_implementations:
+  reactor.plasma: plasma
+  reactor.bridge_plasma_diagnostics: bridge_plasma_diagnostics
+  reactor.diagnostics: diagnostics
+
+settings:
+  muscle_remote_log_level: DEBUG
+  muscle_local_log_level: DEBUG
+

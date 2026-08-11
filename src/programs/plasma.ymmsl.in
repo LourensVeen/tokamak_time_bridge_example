@@ -1,0 +1,15 @@
+ymmsl_version: v0.2
+
+programs:
+  plasma:
+    ports:
+      o_i: clock_out plasma_state_out
+      s: control_in
+    supported_settings:
+      t_begin: float Time at which the simulation starts
+      dt_max: float Maximum time step size
+      dt_adj: float Multiplication factor if the solver does not converge
+      t_end: float Time at which the simulation stops
+    description: A very fake tokamak plasma simulator
+    executable: PREFIX/plasma
+

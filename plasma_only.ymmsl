@@ -1,0 +1,13 @@
+ymmsl_version: v0.2
+
+imports:
+  - from ttb_example.reactor import implementation reactor
+  - from ttb_example.programs.plasma import implementation plasma
+
+custom_implementations:
+  reactor.plasma: plasma
+
+settings:
+  muscle_remote_log_level: DEBUG
+  muscle_local_log_level: DEBUG
+

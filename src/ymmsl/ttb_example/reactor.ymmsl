@@ -1,0 +1,64 @@
+ymmsl_version: v0.2
+
+models:
+  reactor:
+    description: |
+      # Reactor model with diagnostics and control
+
+      This models a fusion reactor, including the reactor vessel itself, diagnostics,
+      and control. The actual model here isn't a real model, but a trivial example meant
+      to show how to connect these components together using time bridges.
+
+    components:
+      plasma:
+        ports:
+          o_i: clock_out plasma_state_out
+          s: control_in
+        description: |
+          This simulates the plasma inside the reactor
+
+      bridge_plasma_diagnostics:
+        ports:
+          s: plasma_state_in diag_clock_in
+          o_i: plasma_state_out
+        description: |
+          Bridges the plasma time scale and the diagnostics time scale
+
+      diagnostics:
+        ports:
+          o_i: clock_out height_out
+          s: plasma_state_in
+        description: |
+          Measures plasma properties at a fixed sampling interval
+
+      bridge_diagnostics_control:
+        ports:
+          s: height_in control_clock_in
+          o_i: height_out
+        description: |
+          Bridges the diagnostics time scale and the control time scale
+
+      control:
+        ports:
+          o_i: clock_out control_out
+          s: height_in
+        description: |
+          Controls the height of the plasma by sending feedback based on measurements
+
+      bridge_control_plasma:
+        ports:
+          s: control_in plasma_clock_in
+          o_i: control_out
+        description: |
+          Bridges the control time scale and the plasma time scale
+
+    conduits:
+      plasma.plasma_state_out: bridge_plasma_diagnostics.plasma_state_in
+      diagnostics.clock_out: bridge_plasma_diagnostics.diag_clock_in
+      bridge_plasma_diagnostics.plasma_state_out: diagnostics.plasma_state_in
+      diagnostics.height_out: bridge_diagnostics_control.height_in
+      control.clock_out: bridge_diagnostics_control.control_clock_in
+      bridge_diagnostics_control.height_out: control.height_in
+      control.control_out: bridge_control_plasma.control_in
+      plasma.clock_out: bridge_control_plasma.plasma_clock_in
+      bridge_control_plasma.control_out: plasma.control_in
