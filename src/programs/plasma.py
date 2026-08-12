@@ -24,11 +24,14 @@ import logging
 from math import exp
 import random
 from libmuscle import Instance, Message
+import matplotlib.pyplot as plt
 from ymmsl import Operator
 
 
-def main() -> None:
+def main() -> tuple[list[float], list[float]]:
     logger = logging.getLogger()
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)
+    logging.getLogger("PIL").setLevel(logging.WARNING)
 
     instance = Instance(
         {Operator.O_I: ["clock_out", "plasma_state_out"], Operator.S: ["control_in"]}
@@ -46,6 +49,9 @@ def main() -> None:
         plasma_position = 0.0
         t_cur = t_begin
         t_next = t_cur + dt_max if t_cur + dt_max < t_end else None
+
+        plasma_timepoints = [t_cur]
+        plasma_states = [plasma_position]
 
         while True:
             # O_I
@@ -71,8 +77,18 @@ def main() -> None:
             t_cur += dt
             t_next = t_cur + dt_max if t_cur + dt_max < t_end else None
 
+            plasma_timepoints.append(t_cur)
+            plasma_states.append(plasma_position)
+
+    return plasma_timepoints, plasma_states
+
 
 if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(logging.INFO)
-    main()
+
+    timepoints, states = main()
+
+    plt.figure()
+    (plot,) = plt.plot(timepoints, states, "b-")
+    plt.show()
