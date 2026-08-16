@@ -12,7 +12,7 @@ models:
     components:
       plasma:
         ports:
-          o_i: clock_out plasma_state_out
+          o_i: plasma_state_out
           s: control_in
         description: |
           This simulates the plasma inside the reactor
@@ -56,9 +56,11 @@ models:
       plasma.plasma_state_out: bridge_plasma_diagnostics.plasma_state_in
       diagnostics.clock_out: bridge_plasma_diagnostics.diag_clock_in
       bridge_plasma_diagnostics.plasma_state_out: diagnostics.plasma_state_in
+
       diagnostics.height_out: bridge_diagnostics_control.height_in
       control.clock_out: bridge_diagnostics_control.control_clock_in
       bridge_diagnostics_control.height_out: control.height_in
+
       control.control_out: bridge_control_plasma.control_in
-      plasma.clock_out: bridge_control_plasma.plasma_clock_in
+      plasma.plasma_state_out: bridge_control_plasma.plasma_clock_in
       bridge_control_plasma.control_out: plasma.control_in

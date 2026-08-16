@@ -1,0 +1,10 @@
+ymmsl_version: v0.2
+
+programs:
+  bridge_control_plasma:
+    ports:
+      o_i: control_out
+      s: control_in plasma_clock_in
+    description: Bridges the control and plasma time scales
+    executable: PREFIX/bridge_control_plasma
+

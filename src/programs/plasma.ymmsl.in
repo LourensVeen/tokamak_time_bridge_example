@@ -3,7 +3,7 @@ ymmsl_version: v0.2
 programs:
   plasma:
     ports:
-      o_i: clock_out plasma_state_out
+      o_i: plasma_state_out
       s: control_in
     supported_settings:
       t_begin: float Time at which the simulation starts

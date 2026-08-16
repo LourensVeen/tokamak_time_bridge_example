@@ -1,0 +1,18 @@
+ymmsl_version: v0.2
+
+programs:
+  control:
+    ports:
+      o_i: clock_out control_out
+      s: height_in
+    supported_settings:
+      gain: float Feedback strength
+      set_point: float Target plasma height
+      d_think: float Processing time for producing control output
+
+      t_begin: float Time at which the simulation starts
+      dt: float Time between decision points
+      t_end: float Time at which the simulation stops
+    description: A very fake vertical controller
+    executable: PREFIX/control
+

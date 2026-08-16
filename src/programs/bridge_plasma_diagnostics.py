@@ -4,9 +4,9 @@
 
 This time bridge receives the plasma state from the plasma model, at whichever time
 points that model has, and receives a clock signal from the diagnostics indicating when
-it wants to get data. It then sends the plasma state at that point in time to the
-diagnostics. In this example we simply send the most recent state, but it's easily
-modified to interpolate, integrate, or average as needed.
+its next measurement window is. The bridge then sends plasma states covering that period
+to the diagnostics. The diagnostics model can then decide which part of the data to use
+and how to process it into a measurement.
 
 Ports:
     plasma_state_in (plasma S): Receives plasma state from plasma model
@@ -47,7 +47,7 @@ def main() -> None:
 
             # Receive any additional plasma data we need to cover it
             while plasma_next is not None and (
-                diag_next is None or plasma_cur < diag_next
+                diag_next is None or plasma_next < diag_next
             ):
                 plasma_state_msg = instance.receive("plasma_state_in")
                 plasma_cur = plasma_state_msg.timestamp
@@ -57,12 +57,12 @@ def main() -> None:
                     f"Got plasma_cur = {plasma_cur}, plasma_next = {plasma_next}"
                 )
 
-            # Remove all plasma data before the last value prior to diag_cur
+            # Remove all plasma data before diag_cur
             logger.debug(f"removing before {diag_cur}")
             i = 0
             while i < len(plasma_data) and plasma_data[i][0] <= diag_cur:
                 i += 1
-            plasma_data = plasma_data[max(0, i - 1):]
+            plasma_data = plasma_data[max(0, i) :]
             logger.debug(f"{plasma_next} {diag_next} plasma_data now {plasma_data}")
 
             # Send plasma data for the current window

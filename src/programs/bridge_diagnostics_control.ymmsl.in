@@ -1,0 +1,10 @@
+ymmsl_version: v0.2
+
+programs:
+  bridge_diagnostics_control:
+    ports:
+      o_i: height_out
+      s: height_in control_clock_in
+    description: Bridges the diagnostics and control time scales
+    executable: PREFIX/bridge_diagnostics_control
+
