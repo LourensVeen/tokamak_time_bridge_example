@@ -29,6 +29,7 @@ $(PREFIX)/bin:
 # install executables
 $(PREFIX)/bin/%: $(ROOT)src/programs/%.py $(ROOT)src/programs/%.ymmsl.in | $(PREFIX)/bin
 	cp $< $@
+	chmod +x $@
 
 
 # install executable ymmsl metadata
