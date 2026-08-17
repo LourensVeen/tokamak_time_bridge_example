@@ -34,10 +34,10 @@ def main() -> None:
     )
 
     while instance.reuse_instance():
-        plasma_data = []
         diag_next: float | None = 0.0
         plasma_cur: float = float("-inf")
         plasma_next: float | None = 0.0
+        plasma_data = []
         while diag_next is not None:
             # Receive the next diagnostics integration window
             diag_clock_msg = instance.receive("diag_clock_in")
@@ -58,12 +58,10 @@ def main() -> None:
                 )
 
             # Remove all plasma data before diag_cur
-            logger.debug(f"removing before {diag_cur}")
             i = 0
             while i < len(plasma_data) and plasma_data[i][0] <= diag_cur:
                 i += 1
             plasma_data = plasma_data[max(0, i) :]
-            logger.debug(f"{plasma_next} {diag_next} plasma_data now {plasma_data}")
 
             # Send plasma data for the current window
             logger.info(

@@ -45,15 +45,22 @@ def main() -> None:
         stddev = instance.get_setting("stddev", "float", default=0.2)
 
         t_cur = t_begin
-        data = [t_cur + 0.5 * dt, 0.0]
+        t_meas = t_cur + d_meas
+        t_next_meas = t_meas + dt if t_cur + dt < t_end else None
+        data = None
 
         while t_cur < t_end:
             # O_I
-            t_next = t_cur + dt if t_cur + dt < t_end else None
+            t_next = t_cur + dt
+            t_next_meas = t_meas + dt
+            if t_end <= t_next:
+                t_next = None
+                t_next_meas = None
+
+            logger.info(f"t_cur: {t_cur}, t_next: {t_next}")
             instance.send("clock_out", Message(t_cur, t_next, None))
-            t_meas = t_cur + dt + d_meas
-            t_meas_next = t_meas + dt if t_cur + dt < t_end else None
-            instance.send("height_out", Message(t_meas, t_meas_next, data))
+            logger.info(f"t_meas: {t_meas}, t_next_meas: {t_next_meas}, data: {data}")
+            instance.send("height_out", Message(t_meas, t_next_meas, data))
 
             # S
             plasma_state_msg = instance.receive("plasma_state_in")
@@ -61,10 +68,9 @@ def main() -> None:
             n = len(plasma_state_msg.data)
             real_height = sum([d[1] for d in plasma_state_msg.data]) / n
 
-            # measurement O_I
             measurement = real_height + random.normalvariate(0.0, stddev)
             data = [t_cur + 0.5 * dt, measurement]
-            logger.info(f"t_cur: {t_cur}, t_meas: {t_meas}, measurement: {measurement}")
+            t_meas = t_cur + dt + d_meas
 
             t_cur += dt
 

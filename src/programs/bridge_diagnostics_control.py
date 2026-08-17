@@ -33,10 +33,10 @@ def main() -> None:
     )
 
     while instance.reuse_instance():
-        diag_data = []
         control_next: float | None = 0.0
         diag_cur: float = float("-inf")
         diag_next: float | None = 0.0
+        diag_data = []
         while control_next is not None:
             # Receive the next control decision point
             control_clock_msg = instance.receive("control_clock_in")
@@ -46,28 +46,32 @@ def main() -> None:
                 f"Got control_cur = {control_cur}, control_next = {control_next}"
             )
 
-            # Receive any additional plasma data we need to cover it
+            # Receive any additional diagnostics data we need to cover it
             while diag_next is not None and (
-                control_next is None or diag_cur < control_next
+                control_next is None or diag_next < control_next
             ):
                 height_msg = instance.receive("height_in")
                 diag_cur = height_msg.timestamp
                 diag_next = height_msg.next_timestamp
-                diag_data.append(height_msg.data)
+                if height_msg.data is not None:
+                    diag_data.append([diag_cur, height_msg.data])
                 logger.debug(f"Got diag_cur = {diag_cur}, diag_next = {diag_next}")
 
-            # Remove all measurements before the last value prior to control_cur
+            # Remove all measurements before control_cur
             i = 0
             while i < len(diag_data) and diag_data[i][0] <= control_cur:
                 i += 1
-            diag_data = diag_data[max(0, i - 1) :]
+            diag_data = diag_data[max(0, i) :]
 
             # Send measurements for the current window
             logger.info(
                 f"Sending {len(diag_data)} heights for window"
                 f" {control_cur} to {control_next}"
             )
-            instance.send("height_out", Message(control_cur, control_next, diag_data))
+
+            # send only the original data, which already has a timestamp built in
+            to_send = [d[1] for d in diag_data]
+            instance.send("height_out", Message(control_cur, control_next, to_send))
 
 
 if __name__ == "__main__":

@@ -37,10 +37,10 @@ def main() -> None:
     while instance.reuse_instance():
         t_begin = instance.get_setting("t_begin", "float", default=0.0)
 
-        control_data = []
         plasma_next: float | None = 0.0
         control_cur: float = t_begin
         control_next: float | None = 0.0
+        control_data = []
         while plasma_next is not None:
             # Receive the next plasma timestep
             plasma_clock_msg = instance.receive("plasma_clock_in")

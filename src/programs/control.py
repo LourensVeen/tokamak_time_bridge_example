@@ -46,42 +46,51 @@ def main() -> None:
         t_end = instance.get_setting("t_end", "float", default=1.0)
 
         t_cur = t_begin
-        t_control = t_begin
-        t_next_control = t_cur + dt + d_think
-        prev_control = 0.0
-        control = 0.0
+        t_control = t_begin  # no d_think so we cover from the start
         data = [
-            [t_begin, prev_control],
-            [t_next_control, control],
+            [t_control, 0.0],
+            [t_cur + dt + d_think, 0.0],
         ]
-        while t_cur < t_end:
-            # O_I
-            t_next = t_cur + dt if t_cur + dt < t_end else None
-            instance.send("clock_out", Message(t_cur, t_next, None))
 
-            logger.debug(f"sending control data: {data}")
+        while t_cur < t_end:
+            #   | - this loop -> |
+            #   |     input      |         |    output      |
+            # t_cur           t_next t_next_control    t_new_control
+            #   |       dt       | d_think |       dt       |
+
+            # O_I
+            t_next = t_cur + dt
+            t_next_control = t_cur + d_think + dt
+            if t_end <= t_next:
+                t_next = None
+                t_next_control = None
+
+            logger.info(f"t_cur: {t_cur}, t_next: {t_next}")
+            instance.send("clock_out", Message(t_cur, t_next, None))
+            # data sent here covers [t_cur + d_think, t_cur + dt + d_think]
+            logger.info(f"t_control: {t_control}, t_next_control: {t_next_control}")
+            logger.info(f"data: {data}")
             instance.send("control_out", Message(t_control, t_next_control, data))
 
             # S
             height_msg = instance.receive("height_in")
-
             logger.info(f"Received height at {height_msg.timestamp}: {height_msg.data}")
-            i = len(height_msg.data)
-            while i > 0 and t_cur < height_msg.data[i - i][0]:
-                i -= 1
-            latest_height = height_msg.data[i - 1][1]
+            if height_msg.data:
+                latest_height = height_msg.data[-1][1]
+            else:
+                latest_height = 0.0
 
-            prev_control = control
-            control = -gain * (latest_height - set_point)
+            # calculate new target value
+            new_control = -gain * (latest_height - set_point)
 
+            # extend the curve to get to new_control at t_new_control
+            t_new_control = t_cur + dt + d_think + dt
+            data[0] = data[1]
+            data[1] = [t_new_control, new_control]
+
+            # move to next timepoint
             t_cur += dt
-
-            # create curve from current actuator state to next
-            t_control = t_cur + d_think
-            t_next_control = t_cur + dt + d_think if t_cur + dt < t_end else None
-
-            data = [[t_control, prev_control], [t_cur + dt + d_think, control]]
-            logger.info(f"t_control: {t_control}, t_next_control: {t_next_control}")
+            t_control = t_next_control
 
 
 if __name__ == "__main__":
