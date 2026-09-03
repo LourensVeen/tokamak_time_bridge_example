@@ -129,6 +129,9 @@ simultaneously, in parallel, and on their own timelines, exchanging information 
 needed by sending messages. The source code for these can be found in `src/programs/`,
 with one Python script and one yMMSL file describing it for each.
 
+![gMMSL diagram of the
+simulation](https://github.com/LourensVeen/tokamak_time_bridge_example/blob/main/reactor_gmmsl.png?raw=true)
+
 When `make` is run in the top-level directory, these Python scripts are copied to the
 installation directory for binaries (`opt/bin' by default). The yMMSL files are copied
 to `opt/ymmsl`, substituting the installation directory for the `PREFIX` string in them.
